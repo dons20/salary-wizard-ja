@@ -42,6 +42,7 @@
     "wrangler": "^4.87.0"
   },
   "overrides": {
-    "serialize-javascript": ">=7.0.4"
+    "serialize-javascript": ">=7.0.4",
+    "vite": "^8.0.10"
   }
 }
