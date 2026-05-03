@@ -5,7 +5,7 @@
 	"compatibility_date": "2026-05-03",
 	"assets": {
 		"not_found_handling": "single-page-application",
-		"directory": "./public",
+		"directory": "./dist",
 	},
 	"kv_namespaces": [
 		{
