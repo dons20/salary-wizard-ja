@@ -1,0 +1,18 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "salary-wizard-jamaica-rates",
+	"main": "cloudflare/worker.ts",
+	"compatibility_date": "2026-05-03",
+	"kv_namespaces": [
+		{
+			"binding": "EXCHANGE_RATES_KV",
+			"id": "b78a2aae7929438080ee4b8a7aa5b945",
+            "preview_id": "d8be64b0830b427d8a2d65bef2060524"
+		}
+	],
+	"triggers": {
+		"crons": [
+			"0 0 * * *"
+		]
+	}
+}
