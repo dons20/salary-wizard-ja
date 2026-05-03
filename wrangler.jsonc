@@ -1,8 +1,12 @@
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "salary-wizard-jamaica-rates",
+	"name": "salary-wizard-jamaica",
 	"main": "cloudflare/worker.ts",
 	"compatibility_date": "2026-05-03",
+	"assets": {
+		"not_found_handling": "single-page-application",
+		"directory": "./public",
+	},
 	"kv_namespaces": [
 		{
 			"binding": "EXCHANGE_RATES_KV",

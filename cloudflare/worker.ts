@@ -10,12 +10,15 @@ type WorkerExchangeRateSnapshot = {
 }
 
 export interface Env {
-  EXCHANGE_RATES_KV: KVNamespace
+  EXCHANGE_RATES_KV: {
+    get(key: string, type: 'json'): Promise<WorkerExchangeRateSnapshot | null>
+    put(key: string, value: string): Promise<void>
+  }
   OPENEXCHANGE_APP_ID: string
   CORS_ORIGIN?: string
 }
 
-const EXCHANGE_RATE_KV_KEY = 'latest'
+const EXCHANGE_RATE_KV_KEY = 'LATEST_EXCHANGE_RATE'
 const OPEN_EXCHANGE_RATES_URL = 'https://openexchangerates.org/api/latest.json'
 const SUPPORTED_SYMBOLS: SupportedExchangeSymbol[] = ['JMD', 'CAD', 'GBP', 'EUR']
 
@@ -63,6 +66,7 @@ async function fetchLatestSnapshot(env: Env): Promise<WorkerExchangeRateSnapshot
   }
 
   const url = new URL(OPEN_EXCHANGE_RATES_URL)
+  url.searchParams.set('base', 'JMD')
   url.searchParams.set('app_id', env.OPENEXCHANGE_APP_ID)
   url.searchParams.set('symbols', SUPPORTED_SYMBOLS.join(','))
 
@@ -107,6 +111,14 @@ async function getOrRefreshSnapshot(env: Env) {
   return fetchLatestSnapshot(env)
 }
 
+function getErrorMessage(error: unknown): string {
+  if (error instanceof Error) {
+    return error.stack ?? error.message
+  }
+
+  return String(error)
+}
+
 export default {
   async fetch(request: Request, env: Env) {
     const origin = resolveCorsOrigin(request, env)
@@ -114,6 +126,17 @@ export default {
 
     if (request.method === 'OPTIONS') {
       return jsonResponse({}, { status: 204 }, origin)
+    }
+
+    if (request.method === 'GET' && pathname === '/api/exchange-rates/refresh') {
+      try {
+        const snapshot = await fetchLatestSnapshot(env)
+        return jsonResponse(snapshot, { status: 200 }, origin)
+      } catch (error) {
+        const message = getErrorMessage(error)
+        console.error('Manual exchange rate refresh failed:', message)
+        return jsonResponse({ error: message }, { status: 502 }, origin)
+      }
     }
 
     if (request.method !== 'GET' || pathname !== '/api/exchange-rates') {
@@ -134,7 +157,7 @@ export default {
     }
   },
 
-  async scheduled(_event: any, env: Env, ctx: { waitUntil: (arg0: Promise<WorkerExchangeRateSnapshot>) => void }) {
+  async scheduled(_event: unknown, env: Env, ctx: { waitUntil: (arg0: Promise<WorkerExchangeRateSnapshot>) => void }) {
     ctx.waitUntil(fetchLatestSnapshot(env))
   },
-} satisfies ExportedHandler<Env>
+}

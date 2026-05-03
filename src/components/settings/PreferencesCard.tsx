@@ -32,6 +32,7 @@ export function PreferencesCard({
             label={`Show ${mode}`}
             checked={visibleSections[mode]}
             onChange={() => onToggle(mode)}
+            dataTestId={`preference-toggle-${mode}`}
           />
         ))}
       </div>
@@ -40,6 +41,7 @@ export function PreferencesCard({
         <button
           type="button"
           className="rounded-full bg-emerald-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-800"
+          data-testid="refresh-rates-button"
           onClick={onRefreshRates}
         >
           {isLoadingRates ? 'Refreshing rates...' : 'Refresh exchange rates'}
@@ -47,6 +49,7 @@ export function PreferencesCard({
         <button
           type="button"
           className="rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50"
+          data-testid="reset-salary-button"
           onClick={onResetSalary}
         >
           Reset salary defaults
@@ -54,6 +57,7 @@ export function PreferencesCard({
         <button
           type="button"
           className="rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50"
+          data-testid="reset-preferences-button"
           onClick={onResetPreferences}
         >
           Reset visibility defaults

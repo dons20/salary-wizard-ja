@@ -41,6 +41,7 @@ export function InstallButton({ className = '' }: InstallButtonProps) {
     <button
       type="button"
       aria-label="Install app"
+      data-testid="install-app-button"
       className={`inline-flex items-center justify-center gap-1 rounded-full border border-slate-300/90 bg-white/92 px-2 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-700 shadow-[0_12px_30px_-20px_rgba(15,93,70,0.45)] backdrop-blur-sm transition hover:border-slate-400 hover:bg-slate-50 hover:text-slate-950 lg:gap-1.5 lg:px-2.5 ${className}`.trim()}
       onClick={async () => {
         await deferredPrompt.prompt()
@@ -53,7 +54,7 @@ export function InstallButton({ className = '' }: InstallButtonProps) {
         <path d="m6.5 8.5 3.5 3.5 3.5-3.5" strokeLinecap="round" strokeLinejoin="round" />
         <path d="M4 14.5h12" strokeLinecap="round" />
       </svg>
-      <span className="hidden lg:inline">Install app</span>
+      <span className="hidden lg:inline text-[10px]">Install app</span>
     </button>
   )
 }

@@ -3,9 +3,10 @@ import { useEffect, useRef, useState } from 'react'
 import {
   convertCurrency,
 } from '../../features/currency/currency-utils'
-import { formatMoney } from '../../lib/format'
+import { formatCurrencyNumber, formatNumberInputDraft, getCurrencySymbol } from '../../lib/format'
 import type { ExchangeRates, SupportedCurrency } from '../../features/currency/currency-types'
 import type { SalaryMode } from '../../features/salary/salary-types'
+import { NumberField } from '../shared/NumberField'
 
 type SalaryRowProps = {
   mode: SalaryMode
@@ -18,6 +19,7 @@ type SalaryRowProps = {
   isLast?: boolean
   onToggleVisibility: (mode: SalaryMode) => void
   onCurrencyChange: (mode: SalaryMode, currency: SupportedCurrency) => void
+  onValueChange: (mode: SalaryMode, value: number) => void
 }
 
 function EyeIcon({ hidden }: { hidden: boolean }) {
@@ -47,6 +49,7 @@ export function SalaryRow({
   isLast = false,
   onToggleVisibility,
   onCurrencyChange,
+  onValueChange,
 }: SalaryRowProps) {
   const currencyPickerRef = useRef<HTMLDivElement>(null)
   const [isCurrencyMenuOpen, setIsCurrencyMenuOpen] = useState(false)
@@ -88,6 +91,27 @@ export function SalaryRow({
     setIsCurrencyMenuOpen(false)
   }
 
+  const valueControl = convertedValue === null ? (
+    <p className="text-sm font-semibold text-amber-700 text-right">Exchange rates required</p>
+  ) : (
+    <NumberField
+      id={`salary-row-input-${mode}`}
+      label={`${mode} salary amount`}
+      hideLabel
+      dataTestId={`salary-row-input-${mode}`}
+      value={convertedValue}
+      onChange={(nextValue) => onValueChange(mode, nextValue)}
+      leadingAdornment={getCurrencySymbol(displayCurrency)}
+      formatInputValue={formatNumberInputDraft}
+      formatDisplayValue={formatCurrencyNumber}
+      maxFractionDigits={2}
+      min={0}
+      step={0.01}
+      labelClassName="gap-0"
+      inputClassName="w-32 rounded-xl px-3 py-2 text-right text-base font-semibold sm:w-40 sm:text-lg"
+    />
+  )
+
   return (
     <div
       className={`flex flex-col items-start gap-2 px-1 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-3 ${isLast ? '' : 'border-b border-slate-200'} ${hidden ? 'opacity-75' : ''}`}
@@ -97,13 +121,7 @@ export function SalaryRow({
         <p className="text-sm font-medium uppercase tracking-[0.18em] text-slate-500">{mode}</p>
       </div>
       <div className="flex w-full items-center justify-between gap-3 pl-0 sm:w-auto sm:justify-end">
-        {convertedValue === null ? (
-          <p className="text-sm font-semibold text-amber-700 text-right">Exchange rates required</p>
-        ) : (
-          <p className="text-base font-semibold text-slate-900 sm:text-lg">
-            {formatMoney(convertedValue, displayCurrency)}
-          </p>
-        )}
+        {valueControl}
         <div className="flex items-center justify-end gap-2 sm:gap-3">
           <div ref={currencyPickerRef} className="relative inline-block">
             <button
@@ -131,6 +149,7 @@ export function SalaryRow({
                   <button
                     key={currency}
                     type="button"
+                    data-testid={`salary-currency-option-${mode}-${currency}`}
                     className={`flex w-full cursor-pointer select-none items-center justify-between rounded-xl px-3 py-2 text-left text-sm transition ${currency === displayCurrency ? 'bg-emerald-50 text-emerald-800' : 'text-slate-700 hover:bg-slate-100'}`}
                     onClick={() => handleCurrencyChange(currency)}
                   >
@@ -144,6 +163,7 @@ export function SalaryRow({
             type="button"
             className="inline-flex items-center justify-center self-center p-2 text-slate-600/45 transition hover:text-slate-900"
             aria-label={`${hidden ? 'Show' : 'Hide'} ${mode}`}
+            data-testid={`salary-visibility-toggle-${mode}`}
             onClick={() => onToggleVisibility(mode)}
           >
             <EyeIcon hidden={hidden} />

@@ -8,9 +8,43 @@ export function formatMoney(amount: number, currency: string): string {
   }).format(amount)
 }
 
+const CURRENCY_SYMBOLS: Record<string, string> = {
+  JMD: '$',
+  USD: '$',
+  CAD: '$',
+  GBP: '£',
+  EUR: '€',
+}
+
+export function getCurrencySymbol(currency: string): string {
+  return CURRENCY_SYMBOLS[currency] ?? currency
+}
+
+export function formatNumberInputDraft(value: string): string {
+  if (value === '') {
+    return ''
+  }
+
+  const [integerPart, decimalPart] = value.split('.')
+  const groupedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+
+  if (decimalPart === undefined) {
+    return groupedInteger
+  }
+
+  return `${groupedInteger}.${decimalPart}`
+}
+
 export function formatNumber(amount: number): string {
   return new Intl.NumberFormat('en-JM', {
     minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  }).format(amount)
+}
+
+export function formatCurrencyNumber(amount: number): string {
+  return new Intl.NumberFormat('en-JM', {
+    minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(amount)
 }

@@ -3,9 +3,10 @@ type ToggleProps = {
   label: string
   checked: boolean
   onChange: () => void
+  dataTestId?: string
 }
 
-export function Toggle({ id, label, checked, onChange }: ToggleProps) {
+export function Toggle({ id, label, checked, onChange, dataTestId }: ToggleProps) {
   return (
     <label className="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-slate-50/80 px-4 py-3 text-sm text-slate-700" htmlFor={id}>
       <span>{label}</span>
@@ -15,6 +16,7 @@ export function Toggle({ id, label, checked, onChange }: ToggleProps) {
         type="checkbox"
         checked={checked}
         onChange={onChange}
+        data-testid={dataTestId}
       />
     </label>
   )

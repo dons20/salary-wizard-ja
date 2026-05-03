@@ -53,7 +53,7 @@ export function TaxSummaryCard({ result, unavailableReason }: TaxSummaryCardProp
           <div className="mt-5">{content}</div>
         </details>
       </div>
-      <div className="hidden sm:block">
+      <div className="hidden sm:block" data-testid="tax-summary-desktop-card">
         <Card
           title="Tax summary"
           description="Self-employed taxes are always calculated in JMD using the active configured rules."

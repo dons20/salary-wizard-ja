@@ -19,7 +19,7 @@ The client now reads exchange rates from a Cloudflare Worker endpoint instead of
 
 ### Local development
 
-1. Run `npm run worker:dev` to start the Worker locally on `http://127.0.0.1:8787`.
+1. Run `npm run worker:dev` to start the Worker locally on `http://localhost:8787`.
 2. Run `npm run dev` for the Vite client.
 3. If you serve the Worker from another URL, set `VITE_EXCHANGE_RATE_API_URL` in your Vite environment.
 

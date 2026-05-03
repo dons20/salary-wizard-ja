@@ -16,7 +16,12 @@ import {
 import { useExchangeRateStore } from './features/currency/exchange-rate-store'
 import { usePreferencesStore } from './features/preferences/preferences-store'
 import { useSalaryStore } from './features/salary/salary-store'
-import { deriveSalaryBreakdown, normalizeToAnnual } from './features/salary/salary-utils'
+import {
+  denormalizeFromAnnual,
+  deriveSalaryBreakdown,
+  normalizeBreakdownValueToAnnual,
+  normalizeToAnnual,
+} from './features/salary/salary-utils'
 import { getActiveTaxConfig } from './features/tax/tax-config'
 import { calculateSelfEmployedTax } from './features/tax/tax-engine'
 import { DEFAULT_DAYS_PER_WEEK } from './lib/constants'
@@ -126,7 +131,7 @@ export function App() {
         ? 'Using stale cached rates'
         : 'Using cached rates'
       : exchangeRates.rates
-        ? 'Live rates'
+        ? 'Latest Rates'
         : 'Rates unavailable'
   const exchangeTone = exchangeRates.rates
     ? usingCachedRates
@@ -135,6 +140,34 @@ export function App() {
     : exchangeRates.error
       ? 'danger'
       : 'neutral'
+
+  const handleBreakdownValueChange = (mode: Parameters<typeof normalizeBreakdownValueToAnnual>[1], value: number, currency: typeof salary.currency) => {
+    const normalizedValue = currency === salary.currency
+      ? value
+      : exchangeRates.rates
+        ? convertCurrency(value, currency, salary.currency, exchangeRates.rates)
+        : null
+
+    if (normalizedValue === null) {
+      return
+    }
+
+    const annualValue = normalizeBreakdownValueToAnnual(
+      normalizedValue,
+      mode,
+      salary.hoursPerWeek,
+      DEFAULT_DAYS_PER_WEEK,
+    )
+
+    salary.setAmount(
+      denormalizeFromAnnual(
+        annualValue,
+        salary.mode,
+        salary.hoursPerWeek,
+        DEFAULT_DAYS_PER_WEEK,
+      ),
+    )
+  }
 
   return (
     <div className="relative flex min-h-screen w-full flex-col gap-8 bg-white px-4 sm:px-6 lg:px-8">
@@ -174,6 +207,7 @@ export function App() {
             visibleSections={preferences.visibleSalarySections}
             onToggle={preferences.toggleSectionVisibility}
             onCurrencyChange={preferences.setBreakdownCurrency}
+            onValueChange={handleBreakdownValueChange}
           />
         </div>
 
@@ -186,6 +220,7 @@ export function App() {
         <button
           type="button"
           className="rounded-full bg-emerald-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-800"
+          data-testid="refresh-rates-button"
           onClick={() => void exchangeRates.refreshRates()}
         >
           {exchangeRates.isLoading ? 'Refreshing rates...' : 'Refresh exchange rates'}
@@ -193,6 +228,7 @@ export function App() {
         <button
           type="button"
           className="rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50"
+          data-testid="reset-salary-button"
           onClick={salary.reset}
         >
           Reset salary defaults
@@ -200,6 +236,7 @@ export function App() {
         <button
           type="button"
           className="rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50"
+          data-testid="reset-preferences-button"
           onClick={preferences.resetPreferences}
         >
           Reset visibility defaults

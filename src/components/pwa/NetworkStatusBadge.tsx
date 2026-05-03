@@ -5,5 +5,9 @@ type NetworkStatusBadgeProps = {
 }
 
 export function NetworkStatusBadge({ online }: NetworkStatusBadgeProps) {
-  return <Badge tone={online ? 'success' : 'warning'}>{online ? 'Online' : 'Offline'}</Badge>
+  return (
+    <Badge tone={online ? 'success' : 'warning'} dataTestId="network-status-badge">
+      {online ? 'Online' : 'Offline'}
+    </Badge>
+  )
 }

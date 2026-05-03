@@ -11,11 +11,15 @@ const toneClasses: Record<BadgeTone, string> = {
 
 type BadgeProps = PropsWithChildren<{
   tone?: BadgeTone
+  dataTestId?: string
 }>
 
-export function Badge({ tone = 'neutral', children }: BadgeProps) {
+export function Badge({ tone = 'neutral', dataTestId, children }: BadgeProps) {
   return (
-    <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] ${toneClasses[tone]}`}>
+    <span
+      className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] ${toneClasses[tone]}`}
+      data-testid={dataTestId}
+    >
       {children}
     </span>
   )

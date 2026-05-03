@@ -2,37 +2,47 @@ import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
+import { cloudflare } from "@cloudflare/vite-plugin";
 
 export default defineConfig({
   plugins: [
     react(),
+    cloudflare(),
     tailwindcss(),
     VitePWA({
+      manifestFilename: 'site.webmanifest',
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.svg', 'icon-192.svg', 'icon-512.svg'],
+      includeAssets: [
+        'favicon.ico',
+        'favicon-16x16.png',
+        'favicon-32x32.png',
+        'apple-touch-icon.png',
+        'android-chrome-192x192.png',
+        'android-chrome-512x512.png',
+      ],
       manifest: {
         name: 'Salary Wizard Jamaica',
         short_name: 'Salary Wizard',
-        description: 'Jamaican salary conversion and self-employed tax estimates.',
+        description: 'Income and tax calculator for Jamaicans',
         theme_color: '#0f5d46',
         background_color: '#f4efe5',
         display: 'standalone',
         start_url: '/',
         icons: [
           {
-            src: 'icon-192.svg',
+            src: 'android-chrome-192x192.png',
             sizes: '192x192',
-            type: 'image/svg+xml',
+            type: 'image/png',
           },
           {
-            src: 'icon-512.svg',
+            src: 'android-chrome-512x512.png',
             sizes: '512x512',
-            type: 'image/svg+xml',
+            type: 'image/png',
           },
           {
-            src: 'icon-512.svg',
+            src: 'android-chrome-512x512.png',
             sizes: '512x512',
-            type: 'image/svg+xml',
+            type: 'image/png',
             purpose: 'maskable',
           },
         ],
@@ -44,7 +54,7 @@ export default defineConfig({
         skipWaiting: true,
       },
       devOptions: {
-        enabled: false,
+        enabled: true,
       },
     }),
   ],

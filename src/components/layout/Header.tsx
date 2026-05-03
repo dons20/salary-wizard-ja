@@ -28,29 +28,27 @@ export function Header({
           <h1 className="text-4xl font-semibold tracking-tight text-white sm:text-5xl">
             {APP_NAME}
           </h1>
-          <p className="rounded-full border px-4 py-1.5 text-sm font-medium text-white/92 sm:text-base">
-            Jamaica's first comprehensive earnings calculator
-          </p>
-          <p className="max-w-2xl text-sm leading-6 text-white/86 sm:text-base">
+          <p className="px-4 py-1.5 text-sm font-medium text-white/92 sm:text-base">
             Calculate your earnings and taxes across multiple currencies instantly!
           </p>
         </div>
 
         <div className="mt-6 flex flex-wrap items-center justify-center gap-3 text-center">
           <NetworkStatusBadge online={isOnline} />
-          <Badge tone={exchangeTone}>{exchangeStatus}</Badge>
-          <span className="text-xs text-white/72" aria-live="polite">
+          <Badge tone={exchangeTone} dataTestId="exchange-status-badge">{exchangeStatus}</Badge>
+          <span className="text-xs text-white/72" aria-live="polite" data-testid="exchange-timestamp">
             {exchangeTimestamp}
           </span>
         </div>
       </div>
 
       {showUpdateBanner ? (
-        <div className="flex flex-col gap-3 rounded-3xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-900 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3 rounded-3xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-900 sm:flex-row sm:items-center sm:justify-between" data-testid="app-update-banner">
           <p>A newer version is ready. Refresh once to apply the latest cached app shell.</p>
           <button
             type="button"
             className="rounded-full bg-amber-500 px-4 py-2 font-semibold text-white transition hover:bg-amber-600"
+            data-testid="app-update-button"
             onClick={onUpdateApp}
           >
             Update app

@@ -17,6 +17,7 @@ type SalaryBreakdownCardProps = {
   visibleSections: VisibleSalarySections
   onToggle: (section: SalaryMode) => void
   onCurrencyChange: (section: SalaryMode, currency: SupportedCurrency) => void
+  onValueChange: (section: SalaryMode, value: number, currency: SupportedCurrency) => void
 }
 
 const supportedCurrencies = getSupportedCurrencies()
@@ -29,6 +30,7 @@ export function SalaryBreakdownCard({
   visibleSections,
   onToggle,
   onCurrencyChange,
+  onValueChange,
 }: SalaryBreakdownCardProps) {
   const visibleModes = BREAKDOWN_SALARY_MODES.filter((mode) => visibleSections[mode])
   const hiddenModes = BREAKDOWN_SALARY_MODES.filter((mode) => !visibleSections[mode])
@@ -49,12 +51,15 @@ export function SalaryBreakdownCard({
               isLast={mode === visibleModes[visibleModes.length - 1]}
               onToggleVisibility={onToggle}
               onCurrencyChange={onCurrencyChange}
+              onValueChange={(section, value) =>
+                onValueChange(section, value, currencyOverrides[mode] ?? sourceCurrency)
+              }
             />
           ))}
 
           {hiddenModes.length ? (
-            <details className="group mt-4 border-t border-slate-200 pt-4">
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">
+            <details className="group mt-4 border-t border-slate-200 pt-4" data-testid="salary-breakdown-hidden-section">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-semibold uppercase tracking-[0.18em] text-slate-500" data-testid="salary-breakdown-hidden-toggle">
                 <span>Hidden ({hiddenModes.length})</span>
                 <svg
                   viewBox="0 0 20 20"
@@ -67,7 +72,7 @@ export function SalaryBreakdownCard({
                   <path d="M5 7.5 10 12.5 15 7.5" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </summary>
-              <div className="mt-3 grid gap-1 bg-slate-50/70 px-4 py-2">
+              <div className="mt-3 grid gap-1 bg-slate-50/70 px-4 py-2" data-testid="salary-breakdown-hidden-content">
                 {hiddenModes.map((mode) => (
                   <SalaryRow
                     key={mode}
@@ -81,6 +86,9 @@ export function SalaryBreakdownCard({
                     isLast={mode === hiddenModes[hiddenModes.length - 1]}
                     onToggleVisibility={onToggle}
                     onCurrencyChange={onCurrencyChange}
+                    onValueChange={(section, value) =>
+                      onValueChange(section, value, currencyOverrides[mode] ?? sourceCurrency)
+                    }
                   />
                 ))}
               </div>
@@ -115,7 +123,7 @@ export function SalaryBreakdownCard({
           {content}
         </details>
       </div>
-      <div className="hidden sm:block">
+      <div className="hidden sm:block" data-testid="salary-breakdown-desktop-card">
         <Card
           title="Salary breakdown"
           description="All salary periods normalize through annual pay, then convert back out."

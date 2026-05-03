@@ -2,6 +2,7 @@ import { INPUT_SALARY_MODES } from '../../lib/constants'
 import { getSupportedCurrencies } from '../../features/currency/currency-utils'
 import type { SupportedCurrency } from '../../features/currency/currency-types'
 import type { InputSalaryMode } from '../../features/salary/salary-types'
+import { formatCurrencyNumber, formatNumberInputDraft, getCurrencySymbol } from '../../lib/format'
 import type { SalaryValidationErrors } from '../../lib/validation'
 import { NumberField } from '../shared/NumberField'
 import { SelectField } from '../shared/SelectField'
@@ -35,8 +36,14 @@ export function SalaryInputCard(props: SalaryInputCardProps) {
           <NumberField
             id="salary-amount"
             label="Salary amount"
+            dataTestId="salary-amount-input"
+            emptyWhenZero
             value={props.amount}
             onChange={props.onAmountChange}
+            leadingAdornment={getCurrencySymbol(props.currency)}
+            formatInputValue={formatNumberInputDraft}
+            formatDisplayValue={formatCurrencyNumber}
+            maxFractionDigits={2}
             min={0}
             step={0.01}
             error={props.errors.amount}
@@ -44,6 +51,7 @@ export function SalaryInputCard(props: SalaryInputCardProps) {
           <NumberField
             id="salary-hours"
             label="Hours per week"
+            dataTestId="salary-hours-input"
             value={props.hoursPerWeek}
             onChange={props.onHoursChange}
             min={1}
