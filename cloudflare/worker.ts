@@ -66,7 +66,6 @@ async function fetchLatestSnapshot(env: Env): Promise<WorkerExchangeRateSnapshot
   }
 
   const url = new URL(OPEN_EXCHANGE_RATES_URL)
-  url.searchParams.set('base', 'JMD')
   url.searchParams.set('app_id', env.OPENEXCHANGE_APP_ID)
   url.searchParams.set('symbols', SUPPORTED_SYMBOLS.join(','))
 

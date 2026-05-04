@@ -49,6 +49,15 @@ export function formatCurrencyNumber(amount: number): string {
   }).format(amount)
 }
 
+export function formatExchangeRate(amount: number): string {
+  const showMorePrecision = amount < 1
+
+  return new Intl.NumberFormat('en-JM', {
+    minimumFractionDigits: showMorePrecision ? 4 : 2,
+    maximumFractionDigits: showMorePrecision ? 4 : 2,
+  }).format(amount)
+}
+
 export function formatDateTime(date: Date | string): string {
   const value = typeof date === 'string' ? new Date(date) : date
   return new Intl.DateTimeFormat('en-JM', {

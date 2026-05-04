@@ -7,6 +7,7 @@ type HeaderProps = {
   exchangeTone: 'neutral' | 'success' | 'warning' | 'danger'
   exchangeStatus: string
   exchangeTimestamp: string
+  exchangeComparison: string | null
   showUpdateBanner: boolean
   onUpdateApp: () => void
 }
@@ -16,6 +17,7 @@ export function Header({
   exchangeTone,
   exchangeStatus,
   exchangeTimestamp,
+  exchangeComparison,
   showUpdateBanner,
   onUpdateApp,
 }: HeaderProps) {
@@ -40,6 +42,15 @@ export function Header({
             {exchangeTimestamp}
           </span>
         </div>
+        {exchangeComparison ? (
+          <p
+            className="mt-2 text-center text-xs font-medium tracking-wide text-white/88 sm:text-sm"
+            aria-live="polite"
+            data-testid="exchange-rate-comparison"
+          >
+            {exchangeComparison}
+          </p>
+        ) : null}
       </div>
 
       {showUpdateBanner ? (

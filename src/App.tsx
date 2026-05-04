@@ -13,6 +13,7 @@ import {
   getRateTimestampLabel,
   isRateDataStale,
 } from './features/currency/currency-utils'
+import type { SupportedCurrency } from './features/currency/currency-types'
 import { useExchangeRateStore } from './features/currency/exchange-rate-store'
 import { usePreferencesStore } from './features/preferences/preferences-store'
 import { useSalaryStore } from './features/salary/salary-store'
@@ -25,6 +26,7 @@ import {
 import { getActiveTaxConfig } from './features/tax/tax-config'
 import { calculateSelfEmployedTax } from './features/tax/tax-engine'
 import { DEFAULT_DAYS_PER_WEEK } from './lib/constants'
+import { formatExchangeRate } from './lib/format'
 import { validateSalaryInput } from './lib/validation'
 
 export function App() {
@@ -140,6 +142,22 @@ export function App() {
     : exchangeRates.error
       ? 'danger'
       : 'neutral'
+  const foreignCurrency: SupportedCurrency = salary.currency === 'JMD' ? 'USD' : salary.currency
+  const exchangeComparison = exchangeRates.rates
+    ? (() => {
+        const jmdRate = exchangeRates.rates.JMD
+        const foreignRate = exchangeRates.rates[foreignCurrency]
+
+        if (!jmdRate || !foreignRate) {
+          return null
+        }
+
+        const oneJmdInForeign = foreignRate / jmdRate
+        const oneForeignInJmd = jmdRate / foreignRate
+
+        return `1 JMD = ${formatExchangeRate(oneJmdInForeign)} ${foreignCurrency} ↔ 1 ${foreignCurrency} = ${formatExchangeRate(oneForeignInJmd)} JMD`
+      })()
+    : null
 
   const handleBreakdownValueChange = (mode: Parameters<typeof normalizeBreakdownValueToAnnual>[1], value: number, currency: typeof salary.currency) => {
     const normalizedValue = currency === salary.currency
@@ -177,6 +195,7 @@ export function App() {
         exchangeTone={exchangeTone}
         exchangeStatus={exchangeStatus}
         exchangeTimestamp={getRateTimestampLabel(exchangeRates.fetchedAt)}
+        exchangeComparison={exchangeComparison}
         showUpdateBanner={needRefresh[0]}
         onUpdateApp={() => void updateServiceWorker(true)}
       />
