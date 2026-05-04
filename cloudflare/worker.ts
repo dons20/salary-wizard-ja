@@ -1,4 +1,4 @@
-type SupportedExchangeSymbol = 'JMD' | 'CAD' | 'GBP' | 'EUR'
+type SupportedExchangeSymbol = 'JMD' | 'USD' | 'CAD' | 'GBP' | 'EUR'
 
 type WorkerExchangeRates = {
   USD: number
@@ -20,7 +20,7 @@ export interface Env {
 
 const EXCHANGE_RATE_KV_KEY = 'LATEST_EXCHANGE_RATE'
 const OPEN_EXCHANGE_RATES_URL = 'https://openexchangerates.org/api/latest.json'
-const SUPPORTED_SYMBOLS: SupportedExchangeSymbol[] = ['JMD', 'CAD', 'GBP', 'EUR']
+const SUPPORTED_SYMBOLS: SupportedExchangeSymbol[] = ['JMD', 'USD', 'CAD', 'GBP', 'EUR']
 
 function jsonResponse(body: unknown, init: ResponseInit = {}, origin = '*') {
   const headers = new Headers(init.headers)
@@ -44,7 +44,7 @@ function resolveCorsOrigin(request: Request, env: Env): string {
 function assertRates(
   rates: Partial<Record<SupportedExchangeSymbol, number>> | undefined,
 ): asserts rates is Record<SupportedExchangeSymbol, number> {
-  if (!rates?.JMD || !rates.CAD || !rates.GBP || !rates.EUR) {
+  if (!rates?.JMD || !rates.USD || !rates.CAD || !rates.GBP || !rates.EUR) {
     throw new Error('Open Exchange Rates response is missing one or more supported currencies.')
   }
 }
