@@ -23,7 +23,7 @@ export const BIWEEKLY_PERIODS_PER_YEAR = 26
 
 export const DEFAULT_HOURS_PER_WEEK = 40
 export const DEFAULT_DAYS_PER_WEEK = 5
-export const DEFAULT_AMOUNT = 0
+export const DEFAULT_AMOUNT = 10000
 export const DEFAULT_SALARY_MODE = 'monthly'
 export const DEFAULT_CURRENCY = 'JMD'
 

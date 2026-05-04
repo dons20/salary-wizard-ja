@@ -1,11 +1,12 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" /> 
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="manifest" href="/site.webmanifest">
+    <meta charset="UTF-8" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png" />
+    <link rel="manifest" href="/site.webmanifest" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -15,12 +16,185 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="Convert salaries and estimate Jamaican self-employed taxes, online or offline."
+      content="Calculate your earnings and taxes across multiple currencies instantly. Install it from your browser and take it with you on the go."
     />
+    <meta name="apple-mobile-web-app-title" content="Salary Wizard" />
     <meta name="theme-color" content="#0f5d46" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Salary Wizard Jamaica" />
+    <meta property="og:title" content="Salary Wizard Jamaica" />
+    <meta
+      property="og:description"
+      content="Calculate your earnings and taxes across multiple currencies instantly. Install it from your browser and take it with you on the go!"
+    />
+    <meta property="og:image" content="/social-preview.webp" />
+    <meta property="og:image:type" content="image/webp" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Salary Wizard Jamaica social preview" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Salary Wizard Jamaica" />
+    <meta
+      name="twitter:description"
+      content="Calculate your earnings and taxes across multiple currencies instantly. Install it from your browser and take it with you on the go."
+    />
+    <meta name="twitter:image" content="/social-preview.webp" />
+    <script>
+      try {
+        if (window.sessionStorage.getItem('salary-calculator-boot-splash-seen') === 'true') {
+          document.documentElement.dataset.skipBootSplash = 'true'
+        }
+      } catch {
+        // Ignore storage access failures and fall back to showing the splash.
+      }
+    </script>
+    <style>
+      :root {
+        color-scheme: light;
+      }
+
+      body {
+        margin: 0;
+        background: #f4efe5;
+      }
+
+      html[data-skip-boot-splash='true'] #app-boot-splash {
+        display: none;
+      }
+
+      #app-boot-splash {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        background:
+          radial-gradient(circle at top, rgba(15, 93, 70, 0.16), transparent 42%),
+          linear-gradient(180deg, #f8f4eb 0%, #efe7d8 100%);
+        color: #0f3d31;
+        font-family: 'Manrope', sans-serif;
+        opacity: 1;
+        transition: opacity 220ms ease, visibility 220ms ease;
+      }
+
+      #app-boot-splash.is-hidden {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+      }
+
+      #app-boot-splash img {
+        width: min(20rem, 72vw);
+        height: auto;
+        filter: drop-shadow(0 16px 30px rgba(15, 61, 49, 0.15));
+        animation: boot-logo-float 2.2s ease-in-out infinite;
+      }
+
+      #app-boot-splash p {
+        margin: 0;
+        font-size: 0.95rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      #app-boot-splash small {
+        color: rgba(15, 61, 49, 0.72);
+        font-size: 0.95rem;
+      }
+
+      .boot-splash-loader {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .boot-splash-loader span {
+        width: 0.7rem;
+        height: 0.7rem;
+        border-radius: 999px;
+        background: rgba(15, 93, 70, 0.85);
+        animation: boot-loader-pulse 1s ease-in-out infinite;
+      }
+
+      .boot-splash-loader span:nth-child(2) {
+        animation-delay: 0.15s;
+      }
+
+      .boot-splash-loader span:nth-child(3) {
+        animation-delay: 0.3s;
+      }
+
+      .boot-splash-progress {
+        position: relative;
+        width: min(18rem, 68vw);
+        height: 0.35rem;
+        overflow: hidden;
+        border-radius: 999px;
+        background: rgba(15, 93, 70, 0.14);
+      }
+
+      .boot-splash-progress::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        width: 40%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, rgba(15, 93, 70, 0.1), rgba(15, 93, 70, 0.85), rgba(15, 93, 70, 0.1));
+        animation: boot-progress-slide 1.4s ease-in-out infinite;
+      }
+
+      @keyframes boot-logo-float {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+
+        50% {
+          transform: translateY(-0.35rem);
+        }
+      }
+
+      @keyframes boot-loader-pulse {
+        0%,
+        100% {
+          transform: scale(0.72);
+          opacity: 0.35;
+        }
+
+        50% {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      @keyframes boot-progress-slide {
+        0% {
+          transform: translateX(-120%);
+        }
+
+        100% {
+          transform: translateX(320%);
+        }
+      }
+    </style>
     <title>Salary Wizard Jamaica</title>
   </head>
   <body>
+    <div id="app-boot-splash" role="status" aria-live="polite" aria-label="Loading Salary Wizard Jamaica">
+      <img src="/logo-full.webp" alt="Salary Wizard Jamaica" />
+      <p>Loading salary tools</p>
+      <small>Syncing rates and preparing your calculator</small>
+      <div class="boot-splash-loader" aria-hidden="true">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+      <div class="boot-splash-progress" aria-hidden="true"></div>
+    </div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

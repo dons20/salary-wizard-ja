@@ -1,5 +1,19 @@
 # Salary Wizard Jamaica
 
+![Salary Wizard Jamaica preview](public/social-preview.webp)
+
+Salary Wizard Jamaica is a salary planning app for people in Jamaica.
+
+Its main purpose is to help users quickly understand what their pay means across different time periods and currencies, with an estimated self-employed tax view for Jamaica.
+
+The app lets users:
+
+- Enter pay in annual, monthly, weekly, daily, or hourly formats.
+- Convert salary values across major currencies with live exchange rates.
+- View salary breakdown rows and set per-row currency preferences.
+- Estimate Jamaican self-employed tax from the calculated annual gross amount.
+- Keep working with cached exchange rates when offline.
+
 ## Exchange rates via Cloudflare Worker + KV
 
 The client now reads exchange rates from a Cloudflare Worker endpoint instead of calling the upstream provider directly.

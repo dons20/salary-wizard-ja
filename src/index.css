@@ -36,7 +36,3 @@ select {
 button {
   cursor: pointer;
 }
-
-::selection {
-  background: rgba(15, 93, 70, 0.2);
-}

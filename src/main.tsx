@@ -1,6 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 
+import { scheduleBootSplashRemoval } from './lib/boot-splash'
 import { Bootstrap } from './providers'
 import './index.css'
 
@@ -17,3 +18,5 @@ createRoot(document.getElementById('root')!).render(
 		<Bootstrap />
 	</StrictMode>,
 )
+
+scheduleBootSplashRemoval()
