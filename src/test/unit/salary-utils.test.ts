@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import {
   denormalizeFromAnnual,
   deriveSalaryBreakdown,
+  getRegularOvertimeHours,
   normalizeBreakdownValueToAnnual,
   normalizeToAnnual,
 } from '../../features/salary/salary-utils'
@@ -15,6 +16,8 @@ describe('salary-utils', () => {
         mode: 'hourly',
         hoursPerWeek: 40,
         daysPerWeek: 5,
+        specialOvertimeHours: 0,
+        pension: 0,
       }),
     ).toBe(2080000)
   })
@@ -26,6 +29,8 @@ describe('salary-utils', () => {
         mode: 'daily',
         hoursPerWeek: 40,
         daysPerWeek: 5,
+        specialOvertimeHours: 0,
+        pension: 0,
       }),
     ).toBe(2080000)
   })
@@ -37,8 +42,27 @@ describe('salary-utils', () => {
         mode: 'monthly',
         hoursPerWeek: 40,
         daysPerWeek: 5,
+        specialOvertimeHours: 0,
+        pension: 0,
       }),
     ).toBe(2100000)
+  })
+
+  it('adds overtime and special overtime premiums to hourly annual income', () => {
+    expect(
+      normalizeToAnnual({
+        amount: 1000,
+        mode: 'hourly',
+        hoursPerWeek: 45,
+        daysPerWeek: 5,
+        specialOvertimeHours: 2,
+        pension: 0,
+      }),
+    ).toBe(2522000)
+  })
+
+  it('derives the remaining regular overtime hours after special overtime is allocated', () => {
+    expect(getRegularOvertimeHours(45, 2)).toBe(3)
   })
 
   it('converts a weekly breakdown value back to annual salary', () => {

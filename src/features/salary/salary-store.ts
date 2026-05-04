@@ -5,34 +5,51 @@ import {
   DEFAULT_AMOUNT,
   DEFAULT_CURRENCY,
   DEFAULT_DAYS_PER_WEEK,
+  DEFAULT_EMPLOYMENT_STATUS,
   DEFAULT_HOURS_PER_WEEK,
+  DEFAULT_PENSION,
   DEFAULT_SALARY_MODE,
+  DEFAULT_SPECIAL_OVERTIME_HOURS,
+  REGULAR_HOURS_PER_WEEK,
 } from '../../lib/constants'
 import type { SupportedCurrency } from '../currency/currency-types'
-import type { InputSalaryMode } from './salary-types'
+import type { EmploymentStatus, InputSalaryMode } from './salary-types'
+
+function clampSpecialOvertimeHours(hoursPerWeek: number, specialOvertimeHours: number) {
+  return Math.min(Math.max(specialOvertimeHours, 0), Math.max(0, hoursPerWeek - REGULAR_HOURS_PER_WEEK))
+}
 
 type SalaryState = {
   amount: number
   mode: InputSalaryMode
   currency: SupportedCurrency
+  employmentStatus: EmploymentStatus
   hoursPerWeek: number
+  specialOvertimeHours: number
+  pension: number
   daysPerWeek: number
   setAmount: (amount: number) => void
   setMode: (mode: InputSalaryMode) => void
   setCurrency: (currency: SupportedCurrency) => void
+  setEmploymentStatus: (employmentStatus: EmploymentStatus) => void
   setHoursPerWeek: (hoursPerWeek: number) => void
+  setSpecialOvertimeHours: (specialOvertimeHours: number) => void
+  setPension: (pension: number) => void
   setDaysPerWeek: (daysPerWeek: number) => void
   reset: () => void
 }
 
 const initialState: Pick<
   SalaryState,
-  'amount' | 'mode' | 'currency' | 'hoursPerWeek' | 'daysPerWeek'
+  'amount' | 'mode' | 'currency' | 'employmentStatus' | 'hoursPerWeek' | 'specialOvertimeHours' | 'pension' | 'daysPerWeek'
 > = {
   amount: DEFAULT_AMOUNT,
   mode: DEFAULT_SALARY_MODE,
   currency: DEFAULT_CURRENCY,
+  employmentStatus: DEFAULT_EMPLOYMENT_STATUS,
   hoursPerWeek: DEFAULT_HOURS_PER_WEEK,
+  specialOvertimeHours: DEFAULT_SPECIAL_OVERTIME_HOURS,
+  pension: DEFAULT_PENSION,
   daysPerWeek: DEFAULT_DAYS_PER_WEEK,
 }
 
@@ -43,7 +60,17 @@ export const useSalaryStore = create<SalaryState>()(
       setAmount: (amount) => set({ amount }),
       setMode: (mode) => set({ mode }),
       setCurrency: (currency) => set({ currency }),
-      setHoursPerWeek: (hoursPerWeek) => set({ hoursPerWeek }),
+      setEmploymentStatus: (employmentStatus) => set({ employmentStatus }),
+      setHoursPerWeek: (hoursPerWeek) =>
+        set((state) => ({
+          hoursPerWeek,
+          specialOvertimeHours: clampSpecialOvertimeHours(hoursPerWeek, state.specialOvertimeHours),
+        })),
+      setSpecialOvertimeHours: (specialOvertimeHours) =>
+        set((state) => ({
+          specialOvertimeHours: clampSpecialOvertimeHours(state.hoursPerWeek, specialOvertimeHours),
+        })),
+      setPension: (pension) => set({ pension }),
       setDaysPerWeek: (daysPerWeek) => set({ daysPerWeek }),
       reset: () => set(initialState),
     }),
@@ -54,7 +81,10 @@ export const useSalaryStore = create<SalaryState>()(
         amount: state.amount,
         mode: state.mode,
         currency: state.currency,
+        employmentStatus: state.employmentStatus,
         hoursPerWeek: state.hoursPerWeek,
+        specialOvertimeHours: state.specialOvertimeHours,
+        pension: state.pension,
         daysPerWeek: state.daysPerWeek,
       }),
     },

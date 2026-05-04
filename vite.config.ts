@@ -2,14 +2,17 @@ import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
-import { cloudflare } from "@cloudflare/vite-plugin";
+import { cloudflare } from '@cloudflare/vite-plugin'
 
-export default defineConfig({
-  plugins: [
-    react(),
-    cloudflare(),
-    tailwindcss(),
-    VitePWA({
+export default defineConfig(({ mode }) => {
+  const isVitest = mode === 'test'
+
+  return {
+    plugins: [
+      react(),
+      !isVitest && cloudflare(),
+      tailwindcss(),
+      VitePWA({
       manifestFilename: 'site.webmanifest',
       registerType: 'autoUpdate',
       includeAssets: [
@@ -76,10 +79,11 @@ export default defineConfig({
       devOptions: {
         enabled: false,
       },
-    }),
-  ],
-  test: {
-    environment: 'node',
-    include: ['src/test/unit/**/*.test.ts'],
-  },
+      }),
+    ].filter(Boolean),
+    test: {
+      environment: 'node',
+      include: ['src/test/unit/**/*.test.ts'],
+    },
+  }
 })

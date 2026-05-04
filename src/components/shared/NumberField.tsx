@@ -17,6 +17,7 @@ type NumberFieldProps = {
   step?: number
   error?: string
   hint?: string
+  readOnly?: boolean
   labelClassName?: string
   inputClassName?: string
 }
@@ -99,6 +100,7 @@ export function NumberField({
   step = 1,
   error,
   hint,
+  readOnly = false,
   labelClassName,
   inputClassName,
 }: NumberFieldProps) {
@@ -106,6 +108,12 @@ export function NumberField({
   const [draftValue, setDraftValue] = useState(() => formatDraftValue(value))
   const [isFocused, setIsFocused] = useState(false)
   const [pendingSelectionStart, setPendingSelectionStart] = useState<number | null>(null)
+
+  useEffect(() => {
+    if (!isFocused || readOnly) {
+      setDraftValue(formatDraftValue(value))
+    }
+  }, [value, isFocused, readOnly])
 
   useEffect(() => {
     if (pendingSelectionStart === null || !inputRef.current) {
@@ -141,15 +149,24 @@ export function NumberField({
         <input
           ref={inputRef}
           id={id}
-          className={`w-full rounded-2xl border border-slate-200 bg-white py-3 text-base text-slate-900 outline-none transition focus:border-emerald-700 focus:ring-4 focus:ring-emerald-100 ${leadingAdornment ? 'pl-11 pr-4' : 'px-4'} ${inputClassName ?? ''}`.trim()}
+          className={`w-full rounded-2xl border border-slate-200 bg-white py-3 text-base text-slate-900 outline-none transition focus:border-emerald-700 focus:ring-4 focus:ring-emerald-100 ${leadingAdornment ? 'pl-11 pr-4' : 'px-4'} ${readOnly ? 'cursor-default bg-slate-50 text-slate-600' : ''} ${inputClassName ?? ''}`.trim()}
           type="text"
           inputMode="decimal"
+          readOnly={readOnly}
           value={displayValue}
           onFocus={() => {
+            if (readOnly) {
+              return
+            }
+
             setDraftValue(emptyWhenZero && value === 0 ? '' : formatDraftValue(value))
             setIsFocused(true)
           }}
           onChange={(event) => {
+            if (readOnly) {
+              return
+            }
+
             const selectionStart = event.currentTarget.selectionStart ?? event.currentTarget.value.length
             const meaningfulCount = countMeaningfulCharacters(
               event.currentTarget.value.slice(0, selectionStart),
@@ -168,6 +185,10 @@ export function NumberField({
             onChange(nextValue)
           }}
           onBlur={() => {
+            if (readOnly) {
+              return
+            }
+
             const normalizedValue = clampValue(draftValue === '' ? 0 : Number(draftValue), min, max)
             onChange(normalizedValue)
             setDraftValue(formatDraftValue(normalizedValue))

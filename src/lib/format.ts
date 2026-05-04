@@ -58,6 +58,13 @@ export function formatExchangeRate(amount: number): string {
   }).format(amount)
 }
 
+export function formatPercentage(rate: number): string {
+  return `${new Intl.NumberFormat('en-JM', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  }).format(rate * 100)}%`
+}
+
 export function formatDateTime(date: Date | string): string {
   const value = typeof date === 'string' ? new Date(date) : date
   return new Intl.DateTimeFormat('en-JM', {

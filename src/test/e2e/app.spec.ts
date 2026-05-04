@@ -117,6 +117,111 @@ test('tax section updates correctly', async ({ page }) => {
   await expect(getDesktopTaxSummary(page).getByTestId('tax-summary-card')).toContainText('Net monthly income')
 })
 
+test('tax summary reveals additional net income periods on demand', async ({ page }) => {
+  const taxSummary = getDesktopTaxSummary(page)
+
+  await replaceInputValue(page.getByTestId('salary-amount-input'), '200000')
+  await expect(taxSummary.getByTestId('tax-summary-card')).not.toContainText('Net weekly income')
+
+  await taxSummary.getByTestId('tax-summary-view-more-toggle').click()
+
+  await expect(taxSummary.getByTestId('tax-summary-card')).toContainText('Net biweekly income')
+  await expect(taxSummary.getByTestId('tax-summary-card')).toContainText('Net weekly income')
+  await expect(taxSummary.getByTestId('tax-summary-card')).toContainText('Net daily income')
+  await expect(taxSummary.getByTestId('tax-summary-card')).toContainText('Net hourly income')
+})
+
+test('employee mode updates the tax summary message and NIS rate', async ({ page }) => {
+  const taxSummary = getDesktopTaxSummary(page)
+
+  await page.getByTestId('salary-advanced-section').click()
+  await page.getByTestId('salary-employment-status-trigger').click()
+  await page.getByTestId('salary-employment-status-option-employee').click()
+
+  await expect(taxSummary.getByTestId('tax-summary-status-message')).toContainText(
+    'You are now seeing your Employee tax estimates calculated in JMD',
+  )
+  await expect(taxSummary.getByTestId('tax-summary-card')).toContainText('NIS (3%)')
+})
+
+test('salary labels and privacy note reflect the selected employment status', async ({ page }) => {
+  await expect(page.locator('label', { hasText: 'Income amount' }).first()).toBeVisible()
+  await expect(page.locator('span', { hasText: 'Income mode' }).first()).toBeVisible()
+  await expect(page.getByText(/All data is processed on your device/i)).toBeVisible()
+
+  await page.getByTestId('salary-advanced-section').click()
+  await page.getByTestId('salary-employment-status-trigger').click()
+  await page.getByTestId('salary-employment-status-option-employee').click()
+
+  await expect(page.locator('label', { hasText: 'Salary amount' }).first()).toBeVisible()
+  await expect(page.locator('span', { hasText: 'Salary mode' }).first()).toBeVisible()
+})
+
+test('advanced overtime fields adjust the annual income', async ({ page }) => {
+  const breakdown = getDesktopBreakdown(page)
+
+  await replaceInputValue(page.getByTestId('salary-amount-input'), '1000')
+  await page.getByTestId('salary-mode-trigger').click()
+  await page.getByTestId('salary-mode-option-hourly').click()
+  await replaceInputValue(page.getByTestId('salary-hours-input'), '45')
+
+  await page.getByTestId('salary-advanced-section').click()
+  await expect(page.getByTestId('salary-overtime-hours-input')).toHaveValue('5')
+  const specialOvertimeInput = page.getByTestId('salary-special-overtime-hours-input')
+  await replaceInputValue(specialOvertimeInput, '2')
+  await specialOvertimeInput.blur()
+
+  await expect(page.getByTestId('salary-overtime-hours-input')).toHaveValue('3')
+  await expect(breakdown.getByTestId('salary-row-input-annual')).toHaveValue('2,522,000.00')
+})
+
+test('pension is deducted before statutory income is calculated', async ({ page }) => {
+  const taxSummary = getDesktopTaxSummary(page)
+
+  await replaceInputValue(page.getByTestId('salary-amount-input'), '200000')
+  await page.getByTestId('salary-advanced-section').click()
+  await replaceInputValue(page.getByTestId('salary-pension-input'), '10000')
+
+  await expect(taxSummary.getByTestId('tax-summary-card')).toContainText('Pension')
+  await expect(taxSummary.getByTestId('tax-summary-card')).toContainText('$120,000.00')
+  await expect(taxSummary.getByTestId('tax-summary-card')).toContainText('Statutory income')
+  await expect(taxSummary.getByTestId('tax-summary-card')).toContainText('$2,136,000.00')
+})
+
+test('pension row stays hidden when no pension value is provided', async ({ page }) => {
+  const taxSummary = getDesktopTaxSummary(page)
+
+  await replaceInputValue(page.getByTestId('salary-amount-input'), '200000')
+
+  await expect(taxSummary.getByTestId('tax-summary-card')).not.toContainText('Pension')
+})
+
+test('tax summary exposes taxable income and income tax detail breakdowns', async ({ page }) => {
+  const taxSummary = getDesktopTaxSummary(page)
+
+  await replaceInputValue(page.getByTestId('salary-amount-input'), '1000000')
+  await taxSummary.getByTestId('tax-line-item-taxable-income').click()
+  await expect(taxSummary.getByTestId('tax-line-item-taxable-income')).toContainText('25%')
+  await expect(taxSummary.getByTestId('tax-line-item-taxable-income')).toContainText('30%')
+
+  await taxSummary.getByTestId('tax-line-item-income-tax').click()
+  await expect(taxSummary.getByTestId('tax-line-item-income-tax')).toContainText('on')
+  await expect(taxSummary.getByTestId('tax-line-item-income-tax')).toContainText('30%')
+})
+
+test('tax detail info icon is hidden when there is no taxable income', async ({ page }) => {
+  const taxSummary = getDesktopTaxSummary(page)
+
+  await replaceInputValue(page.getByTestId('salary-amount-input'), '10000')
+
+  await expect(taxSummary.getByTestId('tax-line-item-taxable-income-info-icon')).toHaveCount(0)
+  await expect(taxSummary.getByTestId('tax-line-item-income-tax-info-icon')).toHaveCount(0)
+})
+
+test('manual refresh rates button is no longer shown', async ({ page }) => {
+  await expect(page.getByTestId('refresh-rates-button')).toHaveCount(0)
+})
+
 test('visibility toggles persist after reload', async ({ page }) => {
   const breakdown = getDesktopBreakdown(page)
 
@@ -137,4 +242,11 @@ test('app works offline with cached data after initial load', async ({ page, con
   await expect(page.getByTestId('exchange-status-badge')).toContainText(/Using cached rates|Using stale cached rates/)
   await replaceInputValue(page.getByTestId('salary-amount-input'), '250000')
   await expect(breakdown.getByTestId('salary-row-input-annual')).toHaveValue('3,000,000.00')
+})
+
+test('mobile salary breakdown and tax summary cards start open', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+
+  await expect(page.getByTestId('salary-breakdown-mobile-card')).toHaveAttribute('open', '')
+  await expect(page.getByTestId('tax-summary-mobile-card')).toHaveAttribute('open', '')
 })

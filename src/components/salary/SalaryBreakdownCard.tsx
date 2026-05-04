@@ -106,7 +106,7 @@ export function SalaryBreakdownCard({
   return (
     <>
       <div className="sm:hidden">
-        <details className="border border-slate-200/80 bg-white/88 p-5 shadow-[0_18px_54px_-40px_rgba(15,93,70,0.45)]" data-testid="salary-breakdown-mobile-card">
+        <details className="border border-slate-200/80 bg-white/88 p-5 shadow-[0_18px_54px_-40px_rgba(15,93,70,0.45)]" data-testid="salary-breakdown-mobile-card" open>
           <summary className="flex cursor-pointer list-none items-center justify-between gap-3">
             <h2 className="text-2xl font-semibold tracking-tight text-slate-900">Salary breakdown</h2>
             <svg

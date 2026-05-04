@@ -24,7 +24,7 @@ import {
   normalizeToAnnual,
 } from './features/salary/salary-utils'
 import { getActiveTaxConfig } from './features/tax/tax-config'
-import { calculateSelfEmployedTax } from './features/tax/tax-engine'
+import { calculateTax } from './features/tax/tax-engine'
 import { DEFAULT_DAYS_PER_WEEK } from './lib/constants'
 import { formatExchangeRate } from './lib/format'
 import { validateSalaryInput } from './lib/validation'
@@ -35,11 +35,17 @@ export function App() {
       amount: state.amount,
       mode: state.mode,
       currency: state.currency,
+      employmentStatus: state.employmentStatus,
       hoursPerWeek: state.hoursPerWeek,
+      specialOvertimeHours: state.specialOvertimeHours,
+      pension: state.pension,
       setAmount: state.setAmount,
       setMode: state.setMode,
       setCurrency: state.setCurrency,
+      setEmploymentStatus: state.setEmploymentStatus,
       setHoursPerWeek: state.setHoursPerWeek,
+      setSpecialOvertimeHours: state.setSpecialOvertimeHours,
+      setPension: state.setPension,
       reset: state.reset,
     })),
   )
@@ -59,7 +65,6 @@ export function App() {
       isLoading: state.isLoading,
       error: state.error,
       source: state.source,
-      refreshRates: state.refreshRates,
     })),
   )
   const [isOnline, setIsOnline] = useState(() => navigator.onLine)
@@ -82,6 +87,8 @@ export function App() {
     mode: salary.mode,
     currency: salary.currency,
     hoursPerWeek: salary.hoursPerWeek,
+    specialOvertimeHours: salary.specialOvertimeHours,
+    pension: salary.pension,
   })
 
   const hasValidationErrors = Object.keys(validationErrors).length > 0
@@ -92,6 +99,18 @@ export function App() {
         mode: salary.mode,
         hoursPerWeek: salary.hoursPerWeek,
         daysPerWeek: DEFAULT_DAYS_PER_WEEK,
+        specialOvertimeHours: salary.specialOvertimeHours,
+        pension: salary.pension,
+      })
+  const annualPension = hasValidationErrors
+    ? null
+    : normalizeToAnnual({
+        amount: salary.pension,
+        mode: salary.mode,
+        hoursPerWeek: salary.hoursPerWeek,
+        daysPerWeek: DEFAULT_DAYS_PER_WEEK,
+        specialOvertimeHours: salary.specialOvertimeHours,
+        pension: salary.pension,
       })
   const breakdown =
     annualSalary === null
@@ -109,11 +128,24 @@ export function App() {
           : exchangeRates.rates
             ? convertCurrency(breakdown.annual, salary.currency, 'JMD', exchangeRates.rates)
             : null
+      const pensionAnnualJmd =
+        annualPension === null
+          ? null
+          : salary.currency === 'JMD'
+            ? annualPension
+            : exchangeRates.rates
+              ? convertCurrency(annualPension, salary.currency, 'JMD', exchangeRates.rates)
+              : null
 
-      if (grossAnnualJmd === null) {
+      if (grossAnnualJmd === null || pensionAnnualJmd === null) {
         taxUnavailableReason = 'Exchange rates are required to calculate taxes for non-JMD salaries.'
       } else {
-        taxResult = calculateSelfEmployedTax(grossAnnualJmd, getActiveTaxConfig(new Date()))
+        taxResult = calculateTax(
+          grossAnnualJmd,
+          salary.employmentStatus,
+          getActiveTaxConfig(new Date()),
+          pensionAnnualJmd,
+        )
       }
     } catch (error) {
       taxUnavailableReason = error instanceof Error ? error.message : 'Unable to calculate taxes.'
@@ -183,6 +215,7 @@ export function App() {
         salary.mode,
         salary.hoursPerWeek,
         DEFAULT_DAYS_PER_WEEK,
+        salary.specialOvertimeHours,
       ),
     )
   }
@@ -204,15 +237,21 @@ export function App() {
         amount={salary.amount}
         mode={salary.mode}
         currency={salary.currency}
+        employmentStatus={salary.employmentStatus}
         hoursPerWeek={salary.hoursPerWeek}
+        specialOvertimeHours={salary.specialOvertimeHours}
+        pension={salary.pension}
         errors={validationErrors}
         onAmountChange={salary.setAmount}
         onModeChange={salary.setMode}
         onCurrencyChange={salary.setCurrency}
+        onEmploymentStatusChange={salary.setEmploymentStatus}
         onHoursChange={salary.setHoursPerWeek}
+        onSpecialOvertimeHoursChange={salary.setSpecialOvertimeHours}
+        onPensionChange={salary.setPension}
       />
 
-      <div className="h-[2px] w-full bg-[linear-gradient(90deg,rgba(148,163,184,0.18),rgba(100,116,139,0.82),rgba(148,163,184,0.18))]" />
+      <div className="h-0.5 w-full bg-[linear-gradient(90deg,rgba(148,163,184,0.18),rgba(100,116,139,0.82),rgba(148,163,184,0.18))]" />
 
       <Disclaimer />
 
@@ -231,19 +270,16 @@ export function App() {
         </div>
 
         <div className="grid gap-6">
-          <TaxSummaryCard result={taxResult} unavailableReason={taxUnavailableReason} />
+          <TaxSummaryCard
+            employmentStatus={salary.employmentStatus}
+            hoursPerWeek={salary.hoursPerWeek}
+            result={taxResult}
+            unavailableReason={taxUnavailableReason}
+          />
         </div>
       </main>
 
       <section className="flex flex-col gap-3 pt-6 sm:flex-row sm:flex-wrap sm:items-center">
-        <button
-          type="button"
-          className="rounded-full bg-emerald-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-800"
-          data-testid="refresh-rates-button"
-          onClick={() => void exchangeRates.refreshRates()}
-        >
-          {exchangeRates.isLoading ? 'Refreshing rates...' : 'Refresh exchange rates'}
-        </button>
         <button
           type="button"
           className="rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50"

@@ -156,7 +156,18 @@ export default {
     }
   },
 
-  async scheduled(_event: unknown, env: Env, ctx: { waitUntil: (arg0: Promise<WorkerExchangeRateSnapshot>) => void }) {
-    ctx.waitUntil(fetchLatestSnapshot(env))
+  async scheduled(
+    _controller: ScheduledController,
+    env: Env,
+    ctx: ExecutionContext,
+  ) {
+    try {
+      console.log('Scheduled exchange rate refresh started.')
+      ctx.waitUntil(fetchLatestSnapshot(env))
+    }
+    catch (error) {
+      const message = getErrorMessage(error)
+      console.error('Scheduled exchange rate refresh failed:', message)
+    }
   },
 }
