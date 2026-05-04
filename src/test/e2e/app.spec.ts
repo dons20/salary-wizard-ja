@@ -36,6 +36,13 @@ test('salary amount starts with default value', async ({ page }) => {
   await expect(page.getByTestId('salary-amount-input')).toHaveValue('10,000.00')
 })
 
+test('unsupported paths are replaced with the canonical spa url', async ({ page }) => {
+  await page.goto('/api?currency=USD#tax')
+
+  await expect(page).toHaveURL(/\/\?currency=USD#tax$/)
+  await expect(page.getByTestId('salary-amount-input')).toHaveValue('10,000.00')
+})
+
 test('entering salary updates outputs', async ({ page }) => {
   const breakdown = getDesktopBreakdown(page)
   const annualInput = breakdown.getByTestId('salary-row-input-annual')
