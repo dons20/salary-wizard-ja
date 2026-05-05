@@ -1,5 +1,32 @@
+const NUMBER_FORMATTER_CACHE = new Map<string, Intl.NumberFormat>()
+const DATE_TIME_FORMATTER_CACHE = new Map<string, Intl.DateTimeFormat>()
+
+function getNumberFormatter(options: Intl.NumberFormatOptions) {
+  const key = JSON.stringify(options)
+  let formatter = NUMBER_FORMATTER_CACHE.get(key)
+
+  if (!formatter) {
+    formatter = new Intl.NumberFormat('en-JM', options)
+    NUMBER_FORMATTER_CACHE.set(key, formatter)
+  }
+
+  return formatter
+}
+
+function getDateTimeFormatter(options: Intl.DateTimeFormatOptions) {
+  const key = JSON.stringify(options)
+  let formatter = DATE_TIME_FORMATTER_CACHE.get(key)
+
+  if (!formatter) {
+    formatter = new Intl.DateTimeFormat('en-JM', options)
+    DATE_TIME_FORMATTER_CACHE.set(key, formatter)
+  }
+
+  return formatter
+}
+
 export function formatMoney(amount: number, currency: string): string {
-  return new Intl.NumberFormat('en-JM', {
+  return getNumberFormatter({
     style: 'currency',
     currency,
     currencyDisplay: 'symbol',
@@ -36,14 +63,14 @@ export function formatNumberInputDraft(value: string): string {
 }
 
 export function formatNumber(amount: number): string {
-  return new Intl.NumberFormat('en-JM', {
+  return getNumberFormatter({
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
   }).format(amount)
 }
 
 export function formatCurrencyNumber(amount: number): string {
-  return new Intl.NumberFormat('en-JM', {
+  return getNumberFormatter({
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(amount)
@@ -52,14 +79,14 @@ export function formatCurrencyNumber(amount: number): string {
 export function formatExchangeRate(amount: number): string {
   const showMorePrecision = amount < 1
 
-  return new Intl.NumberFormat('en-JM', {
+  return getNumberFormatter({
     minimumFractionDigits: showMorePrecision ? 4 : 2,
     maximumFractionDigits: showMorePrecision ? 4 : 2,
   }).format(amount)
 }
 
 export function formatPercentage(rate: number): string {
-  return `${new Intl.NumberFormat('en-JM', {
+  return `${getNumberFormatter({
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
   }).format(rate * 100)}%`
@@ -67,7 +94,7 @@ export function formatPercentage(rate: number): string {
 
 export function formatDateTime(date: Date | string): string {
   const value = typeof date === 'string' ? new Date(date) : date
-  return new Intl.DateTimeFormat('en-JM', {
+  return getDateTimeFormatter({
     dateStyle: 'medium',
     timeStyle: 'short',
   }).format(value)

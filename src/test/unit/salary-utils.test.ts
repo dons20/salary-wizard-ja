@@ -5,6 +5,7 @@ import {
   deriveSalaryBreakdown,
   getRegularOvertimeHours,
   normalizeBreakdownValueToAnnual,
+  normalizePensionToAnnual,
   normalizeToAnnual,
 } from '../../features/salary/salary-utils'
 
@@ -18,6 +19,7 @@ describe('salary-utils', () => {
         daysPerWeek: 5,
         specialOvertimeHours: 0,
         pension: 0,
+        pensionMode: 'amount',
       }),
     ).toBe(2080000)
   })
@@ -31,6 +33,7 @@ describe('salary-utils', () => {
         daysPerWeek: 5,
         specialOvertimeHours: 0,
         pension: 0,
+        pensionMode: 'amount',
       }),
     ).toBe(2080000)
   })
@@ -44,6 +47,7 @@ describe('salary-utils', () => {
         daysPerWeek: 5,
         specialOvertimeHours: 0,
         pension: 0,
+        pensionMode: 'amount',
       }),
     ).toBe(2100000)
   })
@@ -57,8 +61,37 @@ describe('salary-utils', () => {
         daysPerWeek: 5,
         specialOvertimeHours: 2,
         pension: 0,
+        pensionMode: 'amount',
       }),
     ).toBe(2522000)
+  })
+
+  it('converts pension percentages into annual deductions from annual salary', () => {
+    expect(
+      normalizePensionToAnnual({
+        amount: 200000,
+        mode: 'monthly',
+        hoursPerWeek: 40,
+        daysPerWeek: 5,
+        specialOvertimeHours: 0,
+        pension: 5,
+        pensionMode: 'percent',
+      }),
+    ).toBe(120000)
+  })
+
+  it('treats fixed pension amounts as monthly contributions', () => {
+    expect(
+      normalizePensionToAnnual({
+        amount: 1000,
+        mode: 'hourly',
+        hoursPerWeek: 45,
+        daysPerWeek: 5,
+        specialOvertimeHours: 2,
+        pension: 10000,
+        pensionMode: 'amount',
+      }),
+    ).toBe(120000)
   })
 
   it('derives the remaining regular overtime hours after special overtime is allocated', () => {

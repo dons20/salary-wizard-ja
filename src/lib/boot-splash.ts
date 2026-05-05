@@ -1,14 +1,6 @@
 const BOOT_SPLASH_STORAGE_KEY = 'salary-calculator-boot-splash-seen'
 const FIRST_VISIT_SPLASH_DURATION_MS = 2500
 
-function hasSeenBootSplash() {
-	try {
-		return window.sessionStorage.getItem(BOOT_SPLASH_STORAGE_KEY) === 'true'
-	} catch {
-		return false
-	}
-}
-
 function markBootSplashSeen() {
 	try {
 		window.sessionStorage.setItem(BOOT_SPLASH_STORAGE_KEY, 'true')
@@ -35,12 +27,6 @@ export function scheduleBootSplashRemoval() {
 		return
 	}
 
-	const hasSeenSplash = hasSeenBootSplash()
-	const delay = hasSeenSplash ? 0 : FIRST_VISIT_SPLASH_DURATION_MS
-
-	if (!hasSeenSplash) {
-		markBootSplashSeen()
-	}
-
-	window.setTimeout(() => removeBootSplash(bootSplash), delay)
+	markBootSplashSeen()
+	window.setTimeout(() => removeBootSplash(bootSplash), FIRST_VISIT_SPLASH_DURATION_MS)
 }

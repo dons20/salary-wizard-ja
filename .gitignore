@@ -23,6 +23,7 @@ dist-ssr
 *.sln
 *.sw?
 .dev.vars
+.env
 .wrangler
 dev-dist
 test-results

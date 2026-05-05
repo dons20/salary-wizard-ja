@@ -36,16 +36,18 @@ export function TaxLineItem({ label, value, emphasize = false, detail, dataTestI
             data-testid={dataTestId ? `${dataTestId}-info-icon` : undefined}
           >
             <svg
-              viewBox="0 0 20 20"
+              viewBox="0 0 24 24"
               className="h-3.5 w-3.5"
               fill="none"
               stroke="currentColor"
-              strokeWidth="1.8"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
               aria-hidden="true"
             >
-              <circle cx="10" cy="10" r="7" />
-              <path d="M10 8v5" strokeLinecap="round" />
-              <circle cx="10" cy="5.6" r="0.9" fill="currentColor" stroke="none" />
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 16v-4" />
+              <path d="M12 8h.01" />
             </svg>
           </span>
         </span>

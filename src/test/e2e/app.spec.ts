@@ -182,12 +182,58 @@ test('advanced overtime fields adjust the annual income', async ({ page }) => {
   await expect(breakdown.getByTestId('salary-row-input-annual')).toHaveValue('2,522,000.00')
 })
 
+test('hours per week are capped and calculated overtime stays disabled', async ({ page }) => {
+  const hoursInput = page.getByTestId('salary-hours-input')
+
+  await replaceInputValue(hoursInput, '200')
+
+  await expect(hoursInput).toHaveValue('168')
+
+  await page.getByTestId('salary-advanced-section').click()
+  await expect(page.getByTestId('salary-overtime-hours-input')).toBeDisabled()
+
+  const specialOvertimeInput = page.getByTestId('salary-special-overtime-hours-input')
+  await replaceInputValue(specialOvertimeInput, '200')
+  await specialOvertimeInput.blur()
+
+  await expect(specialOvertimeInput).toHaveValue('128')
+})
+
 test('pension is deducted before statutory income is calculated', async ({ page }) => {
   const taxSummary = getDesktopTaxSummary(page)
 
   await replaceInputValue(page.getByTestId('salary-amount-input'), '200000')
   await page.getByTestId('salary-advanced-section').click()
   await replaceInputValue(page.getByTestId('salary-pension-input'), '10000')
+
+  await expect(taxSummary.getByTestId('tax-summary-card')).toContainText('Pension')
+  await expect(taxSummary.getByTestId('tax-summary-card')).toContainText('$120,000.00')
+  await expect(taxSummary.getByTestId('tax-summary-card')).toContainText('Statutory income')
+  await expect(taxSummary.getByTestId('tax-summary-card')).toContainText('$2,136,000.00')
+})
+
+test('fixed monthly pension values remain monthly regardless of salary mode', async ({ page }) => {
+  const taxSummary = getDesktopTaxSummary(page)
+
+  await replaceInputValue(page.getByTestId('salary-amount-input'), '1000')
+  await page.getByTestId('salary-mode-trigger').click()
+  await page.getByTestId('salary-mode-option-hourly').click()
+  await replaceInputValue(page.getByTestId('salary-hours-input'), '45')
+  await page.getByTestId('salary-advanced-section').click()
+  await replaceInputValue(page.getByTestId('salary-pension-input'), '10000')
+
+  await expect(taxSummary.getByTestId('tax-summary-card')).toContainText('Pension')
+  await expect(taxSummary.getByTestId('tax-summary-card')).toContainText('$120,000.00')
+})
+
+test('percentage pension values are converted into annual deductions', async ({ page }) => {
+  const taxSummary = getDesktopTaxSummary(page)
+
+  await replaceInputValue(page.getByTestId('salary-amount-input'), '200000')
+  await page.getByTestId('salary-advanced-section').click()
+  await page.getByTestId('salary-pension-mode-trigger').click()
+  await page.getByTestId('salary-pension-mode-option-percent').click()
+  await replaceInputValue(page.getByTestId('salary-pension-input'), '5')
 
   await expect(taxSummary.getByTestId('tax-summary-card')).toContainText('Pension')
   await expect(taxSummary.getByTestId('tax-summary-card')).toContainText('$120,000.00')

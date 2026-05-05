@@ -1,18 +1,5 @@
 import { APP_NAME } from "../../lib/constants";
 
-export function Disclaimer() {
-  return (
-    <div className="mx-auto max-w-3xl px-4 py-2 text-center text-sm text-slate-600">
-      <p className="font-semibold text-slate-800 uppercase">Disclaimer</p>
-      <p className="mt-2">
-        The values presented below are estimates only. Jamaican tax rules are
-        subject to change every year. Verify your individual figures with TAJ or a
-        qualified tax professional before making any financial decisions.
-      </p>
-    </div>
-  );
-}
-
 export function Footer() {
   return (
     <footer className="-mx-4 bg-[radial-gradient(circle_at_top_left,rgba(167,243,208,0.14),transparent_24%),radial-gradient(circle_at_bottom_right,rgba(110,231,183,0.12),transparent_28%),linear-gradient(135deg,#082f24_0%,#0b3d2e_42%,#0f5d46_100%)] px-5 py-8 text-center text-sm text-emerald-50/82 sm:-mx-6 sm:px-8 lg:-mx-8 lg:px-10">

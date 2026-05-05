@@ -3,10 +3,12 @@ import type {
   EMPLOYMENT_STATUSES,
   DEFAULT_VISIBLE_SECTIONS,
   INPUT_SALARY_MODES,
+  PENSION_INPUT_MODES,
 } from '../../lib/constants'
 
 export type InputSalaryMode = (typeof INPUT_SALARY_MODES)[number]
 export type EmploymentStatus = (typeof EMPLOYMENT_STATUSES)[number]
+export type PensionInputMode = (typeof PENSION_INPUT_MODES)[number]
 
 export type SalaryMode = (typeof BREAKDOWN_SALARY_MODES)[number]
 
@@ -17,6 +19,7 @@ export type SalaryInput = {
   daysPerWeek: number
   specialOvertimeHours: number
   pension: number
+  pensionMode: PensionInputMode
 }
 
 export type SalaryBreakdown = Record<SalaryMode, number>

@@ -8,6 +8,8 @@ export const INPUT_SALARY_MODES = [
   'annual',
 ] as const
 
+export const PENSION_INPUT_MODES = ['amount', 'percent'] as const
+
 export const EMPLOYMENT_STATUSES = ['self-employed', 'employee'] as const
 
 export const BREAKDOWN_SALARY_MODES = [
@@ -23,6 +25,7 @@ export const WEEKS_PER_YEAR = 52
 export const MONTHS_PER_YEAR = 12
 export const BIWEEKLY_PERIODS_PER_YEAR = 26
 export const REGULAR_HOURS_PER_WEEK = 40
+export const HOURS_PER_WEEK_MAX = 24 * 7
 export const REGULAR_OVERTIME_RATE = 1.5
 export const SPECIAL_OVERTIME_RATE = 2
 
@@ -34,6 +37,7 @@ export const DEFAULT_CURRENCY = 'JMD'
 export const DEFAULT_EMPLOYMENT_STATUS = 'self-employed'
 export const DEFAULT_SPECIAL_OVERTIME_HOURS = 0
 export const DEFAULT_PENSION = 0
+export const DEFAULT_PENSION_MODE = 'amount'
 
 export const DEFAULT_VISIBLE_SECTIONS = {
   hourly: true,

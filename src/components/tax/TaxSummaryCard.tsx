@@ -21,7 +21,7 @@ function getEmploymentStatusLabel(employmentStatus: EmploymentStatus) {
 export function TaxSummaryCard({ employmentStatus, hoursPerWeek, result, unavailableReason }: TaxSummaryCardProps) {
   const [showMoreNetPeriods, setShowMoreNetPeriods] = useState(false)
   const calendarYear = result?.calendarYear ?? new Date().getFullYear()
-  const statusMessage = `You are now seeing your ${getEmploymentStatusLabel(employmentStatus)} tax estimates calculated in JMD for calendar year ${calendarYear}`
+  const statusMessage = `You are now seeing your ${getEmploymentStatusLabel(employmentStatus)} tax estimates calculated in JMD for calendar year ${calendarYear}.`
   const hasTaxableIncome = Boolean(result?.incomeTaxBandBreakdown.length)
   const extraNetPeriods = result
     ? {
@@ -45,22 +45,28 @@ export function TaxSummaryCard({ employmentStatus, hoursPerWeek, result, unavail
         </p>
       ))
     : undefined
+  const previousFiscalYearLabel = result ? `${result.calendarYear - 1}-${result.calendarYear}` : null
+  const currentFiscalYearLabel = result ? `${result.calendarYear}-${result.calendarYear + 1}` : null
+  const previousFiscalYearMonthlyThreshold = result ? result.taxFreeThresholdBreakdown.janMarThreshold / 3 : null
+  const currentFiscalYearMonthlyThreshold = result ? result.taxFreeThresholdBreakdown.aprDecThreshold / 9 : null
   const taxFreeThresholdDetail = result
     ? (
         <>
           <p>Jan-Mar: {formatMoney(result.taxFreeThresholdBreakdown.janMarThreshold, 'JMD')}</p>
           <p>Apr-Dec: {formatMoney(result.taxFreeThresholdBreakdown.aprDecThreshold, 'JMD')}</p>
           <p>Calendar year {result.calendarYear}: {formatMoney(result.taxFreeThresholdBreakdown.totalThreshold, 'JMD')}</p>
+          <br />
+          <p>
+            The split exists because the tax-free threshold changed between last fiscal year ({previousFiscalYearLabel}) and this fiscal year ({currentFiscalYearLabel}).
+          </p>
+          <p>Fiscal year {previousFiscalYearLabel}: {formatMoney(previousFiscalYearMonthlyThreshold ?? 0, 'JMD')} per month</p>
+          <p>Fiscal year {currentFiscalYearLabel}: {formatMoney(currentFiscalYearMonthlyThreshold ?? 0, 'JMD')} per month</p>
         </>
       )
     : undefined
 
   const content = (
     <div className="grid gap-4" data-testid="tax-summary-card">
-      <p className="rounded-2xl bg-emerald-50 px-4 py-3 text-sm text-emerald-900" data-testid="tax-summary-status-message">
-        {statusMessage}
-      </p>
-
       {result ? (
         <div>
           <TaxLineItem label="Gross annual income" value={result.grossAnnual} emphasize />
@@ -143,12 +149,17 @@ export function TaxSummaryCard({ employmentStatus, hoursPerWeek, result, unavail
   return (
     <>
       <div className="sm:hidden">
-        <details className="border border-slate-200/80 bg-white/88 p-5 shadow-[0_18px_54px_-40px_rgba(15,93,70,0.45)]" data-testid="tax-summary-mobile-card" open>
-          <summary className="flex cursor-pointer list-none items-center justify-between gap-3">
-            <h2 className="text-2xl font-semibold tracking-tight text-slate-900">Tax summary</h2>
+        <details className="group border border-slate-200/80 bg-white/88 p-5 shadow-[0_18px_54px_-40px_rgba(15,93,70,0.45)]" data-testid="tax-summary-mobile-card" open>
+          <summary className="relative list-none cursor-pointer">
+            <div>
+              <h2 className="text-2xl font-semibold tracking-tight text-slate-900">Tax summary</h2>
+              <p className="mt-3 hidden rounded-2xl bg-emerald-50 px-4 py-3 text-sm text-emerald-900 group-open:block" data-testid="tax-summary-status-message">
+                {statusMessage}
+              </p>
+            </div>
             <svg
               viewBox="0 0 20 20"
-              className="h-4 w-4 shrink-0 transition-transform duration-200 [&_details[open]_&]:rotate-180"
+              className="absolute right-0 top-1 h-4 w-4 shrink-0 transition-transform duration-200 group-open:rotate-180"
               fill="none"
               stroke="currentColor"
               strokeWidth="1.8"
@@ -161,7 +172,7 @@ export function TaxSummaryCard({ employmentStatus, hoursPerWeek, result, unavail
         </details>
       </div>
       <div className="hidden sm:block" data-testid="tax-summary-desktop-card">
-        <Card title="Tax summary">
+        <Card title="Tax summary" description={statusMessage} descriptionTone="highlight">
           {content}
         </Card>
       </div>

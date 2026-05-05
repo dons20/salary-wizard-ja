@@ -1,9 +1,15 @@
-import { EMPLOYMENT_STATUSES, INPUT_SALARY_MODES } from '../../lib/constants'
+import {
+  EMPLOYMENT_STATUSES,
+  HOURS_PER_WEEK_MAX,
+  INPUT_SALARY_MODES,
+  PENSION_INPUT_MODES,
+} from '../../lib/constants'
 import { getSupportedCurrencies } from '../../features/currency/currency-utils'
 import type { SupportedCurrency } from '../../features/currency/currency-types'
 import type {
   EmploymentStatus,
   InputSalaryMode,
+  PensionInputMode,
 } from '../../features/salary/salary-types'
 import {
   getRegularOvertimeHours,
@@ -22,6 +28,7 @@ type SalaryInputCardProps = {
   hoursPerWeek: number
   specialOvertimeHours: number
   pension: number
+  pensionMode: PensionInputMode
   errors: SalaryValidationErrors
   onAmountChange: (value: number) => void
   onModeChange: (value: InputSalaryMode) => void
@@ -30,10 +37,15 @@ type SalaryInputCardProps = {
   onHoursChange: (value: number) => void
   onSpecialOvertimeHoursChange: (value: number) => void
   onPensionChange: (value: number) => void
+  onPensionModeChange: (value: PensionInputMode) => void
 }
 
 export function SalaryInputCard(props: SalaryInputCardProps) {
   const inputTerm = props.employmentStatus === 'employee' ? 'Salary' : 'Income'
+  const pensionLabel = props.pensionMode === 'percent' ? 'Pension percentage' : 'Fixed monthly pension'
+  const pensionHint = props.pensionMode === 'percent'
+    ? `Enter the percentage of your ${inputTerm.toLowerCase()} deducted for pension contributions.`
+    : 'Enter the fixed amount deducted each month for pension contributions.'
   const totalOvertimeHours = getTotalOvertimeHours(props.hoursPerWeek)
   const regularOvertimeHours = getRegularOvertimeHours(
     props.hoursPerWeek,
@@ -43,7 +55,7 @@ export function SalaryInputCard(props: SalaryInputCardProps) {
   return (
     <section className="mx-auto w-full max-w-6xl px-1 py-4">
       <div className="mx-auto max-w-2xl text-center">
-        <h2 className="mt-3 text-3xl uppercase font-semibold tracking-tight text-slate-950">
+        <h2 className="mt-3 text-2xl uppercase font-semibold tracking-tight text-slate-950">
           Salary
         </h2>
         <p className="mt-2 text-sm text-slate-600">
@@ -75,7 +87,7 @@ export function SalaryInputCard(props: SalaryInputCardProps) {
             value={props.hoursPerWeek}
             onChange={props.onHoursChange}
             min={1}
-            max={168}
+            max={HOURS_PER_WEEK_MAX}
             step={0.5}
             error={props.errors.hoursPerWeek}
           />
@@ -100,8 +112,8 @@ export function SalaryInputCard(props: SalaryInputCardProps) {
           />
         </div>
 
-        <details className="group mt-4 rounded-3xl border border-slate-200 bg-slate-50/70 px-4 py-4" data-testid="salary-advanced-section">
-          <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-left text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">
+        <details className="group mt-4 rounded-3xl border border-slate-200 bg-slate-50/70" data-testid="salary-advanced-section">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-4 text-left text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">
             <span>Advanced</span>
             <svg
               viewBox="0 0 20 20"
@@ -114,7 +126,7 @@ export function SalaryInputCard(props: SalaryInputCardProps) {
               <path d="M5 7.5 10 12.5 15 7.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </summary>
-          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-3 px-4 pb-4 sm:grid-cols-2">
             {totalOvertimeHours > 0 ? (
               <NumberField
                 id="salary-overtime-hours"
@@ -124,7 +136,7 @@ export function SalaryInputCard(props: SalaryInputCardProps) {
                 onChange={() => undefined}
                 min={0}
                 step={0.5}
-                readOnly
+                disabled
                 hint="Calculated automatically from weekly hours above 40 after special overtime hours are deducted."
               />
             ) : null}
@@ -144,18 +156,30 @@ export function SalaryInputCard(props: SalaryInputCardProps) {
             ) : null}
             <NumberField
               id="salary-pension"
-              label="Pension"
+              label={pensionLabel}
               dataTestId="salary-pension-input"
               emptyWhenZero
               value={props.pension}
               onChange={props.onPensionChange}
-              leadingAdornment={getCurrencySymbol(props.currency)}
+              leadingAdornment={props.pensionMode === 'amount' ? getCurrencySymbol(props.currency) : undefined}
               formatInputValue={formatNumberInputDraft}
               formatDisplayValue={formatCurrencyNumber}
               maxFractionDigits={2}
               min={0}
               step={0.01}
               error={props.errors.pension}
+              hint={pensionHint}
+            />
+            <SelectField
+              id="salary-pension-mode"
+              label="Pension input"
+              value={props.pensionMode}
+              onChange={props.onPensionModeChange}
+              options={PENSION_INPUT_MODES.map((mode) => ({
+                value: mode,
+                label: mode === 'percent' ? 'Percentage' : 'Fixed Monthly Rate',
+              }))}
+              error={props.errors.pensionMode}
             />
             <SelectField
               id="salary-employment-status"

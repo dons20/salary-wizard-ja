@@ -58,6 +58,19 @@ export function normalizeToAnnual(input: SalaryInput): number {
   )
 }
 
+export function normalizePensionToAnnual(input: SalaryInput, annualSalary?: number): number {
+  if (input.pensionMode === 'percent') {
+    const baseAnnualSalary = annualSalary ?? normalizeToAnnual({
+      ...input,
+      amount: input.amount,
+    })
+
+    return baseAnnualSalary * (input.pension / 100)
+  }
+
+  return input.pension * MONTHS_PER_YEAR
+}
+
 export function denormalizeFromAnnual(
   annual: number,
   mode: InputSalaryMode,

@@ -32,6 +32,7 @@ export function SalaryBreakdownCard({
   onCurrencyChange,
   onValueChange,
 }: SalaryBreakdownCardProps) {
+  const description = 'All salary periods normalize through annual pay, then convert back out. Changing any row\'s currency does not change the other rows.'
   const visibleModes = BREAKDOWN_SALARY_MODES.filter((mode) => visibleSections[mode])
   const hiddenModes = BREAKDOWN_SALARY_MODES.filter((mode) => !visibleSections[mode])
 
@@ -106,12 +107,17 @@ export function SalaryBreakdownCard({
   return (
     <>
       <div className="sm:hidden">
-        <details className="border border-slate-200/80 bg-white/88 p-5 shadow-[0_18px_54px_-40px_rgba(15,93,70,0.45)]" data-testid="salary-breakdown-mobile-card" open>
-          <summary className="flex cursor-pointer list-none items-center justify-between gap-3">
-            <h2 className="text-2xl font-semibold tracking-tight text-slate-900">Salary breakdown</h2>
+        <details className="group border border-slate-200/80 bg-white/88 p-5 shadow-[0_18px_54px_-40px_rgba(15,93,70,0.45)]" data-testid="salary-breakdown-mobile-card" open>
+          <summary className="relative list-none cursor-pointer">
+            <div>
+              <h2 className="text-2xl font-semibold tracking-tight text-slate-900">Salary breakdown</h2>
+              <p className="mt-3 hidden rounded-2xl bg-emerald-50 px-4 py-3 text-sm text-emerald-900 group-open:block">
+                {description}
+              </p>
+            </div>
             <svg
               viewBox="0 0 20 20"
-              className="h-4 w-4 shrink-0 transition-transform duration-200 [&_details[open]_&]:rotate-180"
+              className="absolute right-0 top-1 h-4 w-4 shrink-0 transition-transform duration-200 group-open:rotate-180"
               fill="none"
               stroke="currentColor"
               strokeWidth="1.8"
@@ -126,7 +132,7 @@ export function SalaryBreakdownCard({
       <div className="hidden sm:block" data-testid="salary-breakdown-desktop-card">
         <Card
           title="Salary breakdown"
-          description="All salary periods normalize through annual pay, then convert back out."
+          description={description}
         >
           {content}
         </Card>
