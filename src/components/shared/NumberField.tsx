@@ -1,5 +1,7 @@
 import { useEffect, useId, useRef, useState } from 'react'
 
+import { roundTo } from '../../lib/math'
+
 const HINT_OFFSET = 8
 const VIEWPORT_PADDING = 12
 const MOBILE_HINT_WIDTH = 200
@@ -28,8 +30,16 @@ type NumberFieldProps = {
   inputClassName?: string
 }
 
-function formatDraftValue(value: number): string {
-  return Number.isFinite(value) ? String(value) : '0'
+function formatDraftValue(value: number, maxFractionDigits?: number): string {
+  if (!Number.isFinite(value)) {
+    return '0'
+  }
+
+  if (maxFractionDigits === undefined) {
+    return String(value)
+  }
+
+  return roundTo(value, maxFractionDigits).toFixed(maxFractionDigits)
 }
 
 function sanitizeNumericDraft(rawValue: string, maxFractionDigits?: number): string {
@@ -65,7 +75,12 @@ function clampValue(value: number, min?: number, max?: number): number {
   return Math.min(Math.max(value, lowerBound), upperBound)
 }
 
-function clampDraftValue(draftValue: string, min?: number, max?: number): string {
+function clampDraftValue(
+  draftValue: string,
+  min?: number,
+  max?: number,
+  maxFractionDigits?: number,
+): string {
   if (draftValue === '' || draftValue.endsWith('.')) {
     return draftValue
   }
@@ -78,7 +93,7 @@ function clampDraftValue(draftValue: string, min?: number, max?: number): string
 
   const clampedValue = clampValue(numericValue, min, max)
 
-  return clampedValue === numericValue ? draftValue : formatDraftValue(clampedValue)
+  return clampedValue === numericValue ? draftValue : formatDraftValue(clampedValue, maxFractionDigits)
 }
 
 function countMeaningfulCharacters(value: string): number {
@@ -141,7 +156,7 @@ export function NumberField({
   const hintButtonRef = useRef<HTMLButtonElement>(null)
   const hintContainerRef = useRef<HTMLDivElement>(null)
   const hintRef = useRef<HTMLDivElement>(null)
-  const [draftValue, setDraftValue] = useState(() => formatDraftValue(value))
+  const [draftValue, setDraftValue] = useState(() => formatDraftValue(value, maxFractionDigits))
   const [isFocused, setIsFocused] = useState(false)
   const [isHintOpen, setIsHintOpen] = useState(false)
   const [pendingSelectionStart, setPendingSelectionStart] = useState<number | null>(null)
@@ -318,7 +333,7 @@ export function NumberField({
               return
             }
 
-            setDraftValue(emptyWhenZero && value === 0 ? '' : formatDraftValue(value))
+            setDraftValue(emptyWhenZero && value === 0 ? '' : formatDraftValue(value, maxFractionDigits))
             setIsFocused(true)
           }}
           onChange={(event) => {
@@ -331,7 +346,7 @@ export function NumberField({
               event.currentTarget.value.slice(0, selectionStart),
             )
             const sanitizedValue = sanitizeNumericDraft(event.currentTarget.value, maxFractionDigits)
-            const clampedDraftValue = clampDraftValue(sanitizedValue, min, max)
+            const clampedDraftValue = clampDraftValue(sanitizedValue, min, max, maxFractionDigits)
             setDraftValue(clampedDraftValue)
 
             if (formatInputValue) {
@@ -351,7 +366,7 @@ export function NumberField({
 
             const normalizedValue = clampValue(draftValue === '' ? 0 : Number(draftValue), min, max)
             onChange(normalizedValue)
-            setDraftValue(formatDraftValue(normalizedValue))
+            setDraftValue(formatDraftValue(normalizedValue, maxFractionDigits))
             setIsFocused(false)
           }}
           onKeyDown={(event) => {

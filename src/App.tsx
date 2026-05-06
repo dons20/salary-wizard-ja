@@ -137,8 +137,10 @@ export function App() {
   )
 
   const hasValidationErrors = Object.keys(validationErrors).length > 0
+  const canRenderZeroBreakdown =
+    salary.amount === 0 && Object.keys(validationErrors).every((fieldName) => fieldName === 'amount')
   const derivedSalary = useMemo(() => {
-    if (hasValidationErrors) {
+    if (hasValidationErrors && !canRenderZeroBreakdown) {
       return {
         annualPension: null,
         annualSalary: null,
@@ -173,6 +175,7 @@ export function App() {
       breakdown: deriveSalaryBreakdown(annualSalary, salary.hoursPerWeek, DEFAULT_DAYS_PER_WEEK),
     }
   }, [
+    canRenderZeroBreakdown,
     hasValidationErrors,
     salary.amount,
     salary.hoursPerWeek,
@@ -185,12 +188,17 @@ export function App() {
   const { annualPension, breakdown } = derivedSalary
 
   const { taxResult, taxUnavailableReason } = useMemo(() => {
+    if (hasValidationErrors) {
+      return {
+        taxResult: null,
+        taxUnavailableReason: 'Fix the salary inputs to calculate taxes.',
+      }
+    }
+
     if (!breakdown) {
       return {
         taxResult: null,
-        taxUnavailableReason: hasValidationErrors
-          ? 'Fix the salary inputs to calculate taxes.'
-          : null,
+        taxUnavailableReason: null,
       }
     }
 

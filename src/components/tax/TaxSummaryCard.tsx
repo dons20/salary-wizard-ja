@@ -25,6 +25,7 @@ export function TaxSummaryCard({ employmentStatus, hoursPerWeek, result, unavail
   const hasTaxableIncome = Boolean(result?.incomeTaxBandBreakdown.length)
   const extraNetPeriods = result
     ? {
+        monthlyDeductions: result.totalDeductions / 12,
         biweekly: result.netBiweekly,
         weekly: result.netAnnual / WEEKS_PER_YEAR,
         daily: result.netAnnual / (DEFAULT_DAYS_PER_WEEK * WEEKS_PER_YEAR),
@@ -111,6 +112,7 @@ export function TaxSummaryCard({ employmentStatus, hoursPerWeek, result, unavail
           <TaxLineItem label="Net monthly income" value={result.netMonthly} />
           {showMoreNetPeriods && extraNetPeriods ? (
             <>
+              <TaxLineItem label="Monthly deductions" value={extraNetPeriods.monthlyDeductions} />
               <TaxLineItem label="Net biweekly income" value={extraNetPeriods.biweekly} />
               <TaxLineItem label="Net weekly income" value={extraNetPeriods.weekly} />
               <TaxLineItem label="Net daily income" value={extraNetPeriods.daily} />

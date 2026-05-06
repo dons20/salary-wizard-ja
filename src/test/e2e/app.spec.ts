@@ -110,6 +110,27 @@ test('editing a breakdown row in its displayed currency updates the salary input
   await expect(annualInput).toHaveValue('3,748,800.00')
 })
 
+test('focused breakdown inputs keep two-decimal formatting', async ({ page }) => {
+  const weeklyInput = getVisibleByTestId(page, 'salary-row-input-weekly')
+
+  await replaceInputValue(page.getByTestId('salary-amount-input'), '200000')
+  await weeklyInput.click()
+
+  await expect(weeklyInput).toHaveValue('46,153.85')
+})
+
+test('editing a breakdown row to zero keeps the breakdown visible before blur', async ({ page }) => {
+  const breakdown = getDesktopBreakdown(page)
+  const annualInput = getVisibleByTestId(page, 'salary-row-input-annual')
+
+  await replaceInputValue(page.getByTestId('salary-amount-input'), '200000')
+  await replaceInputValue(annualInput, '0')
+
+  await expect(annualInput).toHaveValue('0')
+  await expect(breakdown.getByTestId('salary-row-monthly')).toBeVisible()
+  await expect(breakdown).not.toContainText('Correct the input values to see salary conversions.')
+})
+
 test('hidden section stays out of view until a row is hidden', async ({ page }) => {
   const breakdown = getDesktopBreakdown(page)
 
@@ -129,9 +150,11 @@ test('tax summary reveals additional net income periods on demand', async ({ pag
 
   await replaceInputValue(page.getByTestId('salary-amount-input'), '200000')
   await expect(taxSummary.getByTestId('tax-summary-card')).not.toContainText('Net weekly income')
+  await expect(taxSummary.getByTestId('tax-summary-card')).not.toContainText('Monthly deductions')
 
   await taxSummary.getByTestId('tax-summary-view-more-toggle').click()
 
+  await expect(taxSummary.getByTestId('tax-summary-card')).toContainText('Monthly deductions')
   await expect(taxSummary.getByTestId('tax-summary-card')).toContainText('Net biweekly income')
   await expect(taxSummary.getByTestId('tax-summary-card')).toContainText('Net weekly income')
   await expect(taxSummary.getByTestId('tax-summary-card')).toContainText('Net daily income')

@@ -23,7 +23,7 @@ export const salaryInputSchema = z.object({
 
   if (input.specialOvertimeHours > maxSpecialOvertimeHours) {
     context.addIssue({
-      code: z.ZodIssueCode.custom,
+      code: "custom",
       path: ['specialOvertimeHours'],
       message: `Special overtime hours cannot exceed ${maxSpecialOvertimeHours}.`,
     })
@@ -31,7 +31,7 @@ export const salaryInputSchema = z.object({
 
   if (input.pensionMode === 'percent' && input.pension > 100) {
     context.addIssue({
-      code: z.ZodIssueCode.custom,
+      code: "custom",
       path: ['pension'],
       message: 'Pension percentage cannot exceed 100.',
     })
